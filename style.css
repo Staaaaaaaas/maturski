@@ -1,5 +1,14 @@
+body{
+    background-color: #FEFAE0;
+}
 canvas{
     width: 500px;
     height: 500px;
     border: 5px solid #D4A373;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
+

@@ -1,6 +1,5 @@
 const platno = document.getElementById("platno");
 const kontekst = platno.getContext("2d");
-kontekst.translate(0.5, 0.5);
 const fps = 60;
 
 const bojaPokreta = "#DDB892";
@@ -15,13 +14,18 @@ const bojaIgraca = "#D4A373";
 	- NIM-slicne igre
 */
 
-
+function pozicijaMisa(desavanje) {
+    const rect = platno.getBoundingClientRect()
+    const x = desavanje.clientX - rect.left
+    const y = desavanje.clientY - rect.top
+    return [x,y];
+}
 function nadjiNajdesnijuNulu(broj){
 	broj = ~broj;
 	let stepen = (broj&~(broj-1));
 	let odgovor = 0;
-	while(stepen){
-		stepen/=2;
+	while(stepen!=1){
+		stepen>>=1;
 		odgovor++;
 	}
 	return odgovor;
@@ -54,60 +58,51 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona){
+	dfs(vrsta, kolona, sansa){
 		if(vrsta >= this.dimenzija-1 && kolona >= this.dimenzija){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(vrsta == this.dimenzija-1){
-			this.dfs(vrsta, kolona+1);
+			this.dfs(vrsta, kolona+1, sansa);
 			return;
 		}
 		if(kolona == this.dimenzija-1){
-			this.dfs(vrsta+1, kolona);
+			this.dfs(vrsta+1, kolona, sansa);
 			return;
 		}
 		
 		let rezultat = Math.random();
-		if(rezultat >= 0.5){
-			this.dfs(vrsta+1, kolona);
+		if(rezultat >= sansa){
+			this.dfs(vrsta+1, kolona, sansa);
 		}
 		else{
-			this.dfs(vrsta, kolona+1);
+			this.dfs(vrsta, kolona+1, sansa);
 		}
 		
 	}
 	generisiPut(){
-		this.dfs(0,0);
-		let red = [];
-		for(let i=0;i<this.dimenzija;i++){
-			for(let j = 0;j<this.dimenzija;j++){
-				if(this.matrica[i][j]){
-					red.push([i,j]);
-				}
-				
-			}
-		}
-		const smerovi = [[0,1], [1,0]];
-		while(red.length){
-			let [vrsta, kolona] = red.shift();
-			if(vrsta > this.dimenzija-1 || kolona > this.dimenzija-1 || vrsta < 0 || kolona < 0 || this.matrica[vrsta][kolona]==2) continue;
-			this.matrica[vrsta][kolona]=2;
-			smerovi.forEach(([x, y]) => {
-				if(Math.random() < 0.5){
-					red.push([vrsta+y,kolona+x]);
-				}
-			});
+		let brojPuteva = 3+	Math.floor(Math.random()*this.dimenzija);
+		for(let i=0;i<brojPuteva;i++){
+			this.dfs(0,0, Math.random());
 		}
 	}
-	izracunajGrandi(){
-		let red = [];
-		red.push([0,0,0]);
-
-	}
+	
 }
 
 class Igrac{
+	nadjiNajdalje(){
+		this.najdaljiX=this.x;
+		this.najdaljiY=this.y;
+		for(let i = this.x; i>=0; i--){
+			if(this.tbl.matrica[this.y][i]==0)break;
+			this.najdaljiX = i;
+		}
+		for(let i = this.y; i>=0; i--){
+			if(this.tbl.matrica[i][this.x]==0)break;
+			this.najdaljiY = i;
+		}
+	}
 	constructor(tbl){
 		this.tbl = tbl;
 		this.x = tbl.dimenzija-1;
@@ -121,6 +116,13 @@ class Igrac{
 		for(let i=this.y;i>=0;i--){
 			if(this.tbl.matrica[i][this.x]==0)break;
 			this.najdaljiY=i;
+		}
+		this.grandi = [];
+		for(let i = 0; i<this.tbl.dimenzija; i++){
+			let novaDuzina = this.grandi.push([]);
+			for(let j=0; j<this.tbl.dimenzija; j++){
+				this.grandi[novaDuzina-1].push(0);
+			}
 		}
 	}
 	crtaj(){
@@ -148,38 +150,71 @@ class Igrac{
 		//kontekst.stroke();
 		kontekst.fill();
 	}
-	
+	pomeriAI(){
+		for(let i = this.x; i>=0; i--){
+			if(this.grandi[this.y][i]==-1)break;
+			if(this.grandi[this.y][i]==0){
+				this.x=i;
+				this.nadjiNajdalje();
+				return;
+			}
+		}
+		for(let i = this.y; i>=0; i--){
+			if(this.grandi[i][this.x]==-1)break;
+			if(this.grandi[i][this.x]==0){
+				this.y=i;
+				this.nadjiNajdalje();
+				return;
+			}
+		}
+	}
 	pomeri(klikX, klikY){
 		let noviX = Math.floor(klikX/this.tbl.strana);
 		let noviY = Math.floor(klikY/this.tbl.strana);
 		if(noviX==this.x && noviY==this.y)return;
+		//console.log(klikX);
 		if(noviX!=this.x && noviY!=this.y)return;
 		if(noviX<this.najdaljiX || noviY<this.najdaljiY)return;
 		if(noviX>this.x || noviY > this.y)return;
-		this.x = noviX;
-		this.y = noviY;
-		this.najdaljiX=this.x;
-		this.najdaljiY=this.y;
-		for(let i = this.x; i>=0; i--){
-			if(this.tbl.matrica[this.y][i]==0)break;
-			this.najdaljiX = i;
+		this.x=noviX;
+		this.y=noviY;
+		this.nadjiNajdalje();
+		this.pomeriAI();
+	}
+	
+	izracunajGrandi(){
+		let kolona = Array(this.tbl.dimenzija);
+		let vrsta = 0;
+		for(let i=0;i<this.tbl.dimenzija;i++){
+			vrsta=0;
+			for(let j=0;j<this.tbl.dimenzija;j++){
+				if(this.tbl.matrica[i][j]==0){
+					vrsta = 0;
+					kolona[j]=0;
+					this.grandi[i][j]=-1;
+					continue;
+				}
+				let mex = nadjiNajdesnijuNulu(vrsta | kolona[j]);
+				vrsta|=(1<<mex);
+				kolona[j]|=(1<<mex);
+				this.grandi[i][j]=mex;
+			}
 		}
-		for(let i = this.y; i>=0; i--){
-			if(this.tbl.matrica[i][this.x]==0)break;
-			this.najdaljiY = i;
-		}
+		if(this.grandi[this.tbl.dimenzija-1][this.tbl.dimenzija-1])this.pomeriAI();
 	}
 }
-
+let potez = 0;
 let tabl;
 let igrc;
 platno.addEventListener('click', function(event){
-	igrc.pomeri(event.offsetX, event.offsetY);
+	[x, y] = pozicijaMisa(event);
+	igrc.pomeri(x,y);
 });
 function podesi(){
 	tabl = new Tabla(6, 500);
 	tabl.generisiPut();
 	igrc = new Igrac(tabl);
+	igrc.izracunajGrandi();
 }
 podesi();
 function petlja(){
