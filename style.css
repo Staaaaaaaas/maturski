@@ -1,10 +1,6 @@
-body{
-    background-color: #FEFAE0;
-}
-canvas{
-    width: 500px;
-    height: 500px;
-    border: 5px solid #D4A373;
+
+canvas, button{
+    outline: 5px solid white;
     padding-left: 0;
     padding-right: 0;
     margin-left: auto;
@@ -12,3 +8,6 @@ canvas{
     display: block;
 }
 
+button{
+    width: 500px;
+}

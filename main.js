@@ -2,24 +2,38 @@ const platno = document.getElementById("platno");
 const kontekst = platno.getContext("2d");
 const fps = 60;
 
-const bojaPokreta = "#DDB892";
-const bojaZida = "#CCD5AE";
-const bojaPozadine = "#E9EDC9";
-const bojaIgraca = "#D4A373";
-//const bojaOkviraIgraca = "#FFCFAD";
-/* STA TREBA URADITI:
-	- kretanje igraca GOTOVO
-	- Vestacka Inteligencija (igrac 2)
-	- drag&drop?
-	- NIM-slicne igre
-*/
 
-function pozicijaMisa(desavanje) {
+
+class Tema{
+	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
+		this.bojaPokreta = pokret;
+		this.bojaPokretaAI = pokretAI;
+		this.bojaCilja = cilj;
+		this.bojaZida = zid;
+		this.bojaPozadine = pozadina;
+		this.bojaIgraca = igrac;
+	}
+}
+
+const boje = {
+	"default": new Tema("#DDB892", "#CCD5AE", "red", "#CCD5AE", "#E9EDC9","#D4A373"),
+	"roze": new Tema( "#A2D2FF","#BDE0FE", "#CDB4DB", "#CDB4DB", "#FFC8DD","#A2D2FF"),
+	"funky": new Tema( "#00BBF9","#00BBF9", "#FEE440", "#9B5DE5", "#00F5D4","#00BBF9"),
+}
+const temaIgre = boje["default"];
+document.body.style.backgroundColor = temaIgre.bojaPozadine;
+
+function pozicijaMisa(_desavanje) {
     const rect = platno.getBoundingClientRect()
-    const x = desavanje.clientX - rect.left
-    const y = desavanje.clientY - rect.top
+    const x = _desavanje.clientX - rect.left
+    const y = _desavanje.clientY - rect.top
     return [x,y];
 }
+
+function spavaj(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function nadjiNajdesnijuNulu(broj){
 	broj = ~broj;
 	let stepen = (broj&~(broj-1));
@@ -29,6 +43,13 @@ function nadjiNajdesnijuNulu(broj){
 		odgovor++;
 	}
 	return odgovor;
+}
+
+function krug(x, y, r, boja){
+	kontekst.beginPath();
+	kontekst.fillStyle = boja;
+	kontekst.arc(x, y, r, 0, Math.PI * 2);
+	kontekst.fill();
 }
 
 class Tabla{
@@ -45,8 +66,8 @@ class Tabla{
 		}
 	}
 	crtaj(){
-		kontekst.strokeStyle = bojaZida;
-		kontekst.fillStyle = bojaZida;
+		kontekst.strokeStyle = temaIgre.bojaZida;
+		kontekst.fillStyle = temaIgre.bojaZida;
 		//kontekst.lineWidth = 2.5;
 		for(let i=0;i<this.dimenzija;i++){
 			for(let j = 0;j<this.dimenzija;j++){
@@ -58,26 +79,26 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona, sansa){
+	dfs(vrsta, kolona){
 		if(vrsta >= this.dimenzija-1 && kolona >= this.dimenzija){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(vrsta == this.dimenzija-1){
-			this.dfs(vrsta, kolona+1, sansa);
+			this.dfs(vrsta, kolona+1);
 			return;
 		}
 		if(kolona == this.dimenzija-1){
-			this.dfs(vrsta+1, kolona, sansa);
+			this.dfs(vrsta+1, kolona);
 			return;
 		}
 		
 		let rezultat = Math.random();
-		if(rezultat >= sansa){
-			this.dfs(vrsta+1, kolona, sansa);
+		if(rezultat >= 0.5){
+			this.dfs(vrsta+1, kolona);
 		}
 		else{
-			this.dfs(vrsta, kolona+1, sansa);
+			this.dfs(vrsta, kolona+1);
 		}
 		
 	}
@@ -104,6 +125,7 @@ class Igrac{
 		}
 	}
 	constructor(tbl){
+		this.potez = 0;
 		this.tbl = tbl;
 		this.x = tbl.dimenzija-1;
 		this.y = tbl.dimenzija-1;
@@ -127,48 +149,58 @@ class Igrac{
 	}
 	crtaj(){
 		
-		kontekst.fillStyle = bojaIgraca;
 		//kontekst.strokeStyle = bojaOkviraIgraca;
 		let centarX = this.tbl.strana * this.x + this.tbl.strana/2;
 		let centarY = this.tbl.strana * this.y + this.tbl.strana/2;
-		kontekst.beginPath();
-		kontekst.arc(centarX, centarY, this.tbl.strana/2 * 0.8, 0, Math.PI * 2);
-		//kontekst.stroke();
-		kontekst.fill();
-		kontekst.beginPath();
-		kontekst.fillStyle = bojaPokreta;
-		for(let i = this.najdaljiX; i<this.x; i++){
+		krug(centarX, centarY, this.tbl.strana/2 * 0.9, temaIgre.bojaIgraca);
+		let bojaPoteza = temaIgre.bojaPokreta;
+		if(!this.potez)bojaPoteza = temaIgre.bojaPokretaAI;
+		for(let i = this.x-1; i>=this.najdaljiX; i--){
+			let boja = bojaPoteza;
+			if(this.grandi[this.y][i]==0)boja = temaIgre.bojaCilja;
 			let cntr = this.tbl.strana * i + this.tbl.strana/2;
-			kontekst.arc(cntr, centarY, this.tbl.strana/4, 0, Math.PI * 2);
+			krug(cntr, centarY, this.tbl.strana/4, boja);
 		}
-		kontekst.fill();
-		kontekst.beginPath();
-		for(let i = this.najdaljiY; i<this.y; i++){
+		for(let i = this.y-1; i>=this.najdaljiY; i--){
+			let boja = bojaPoteza;
+			if(this.grandi[i][this.x]==0)boja = temaIgre.bojaCilja;
 			let cntr = this.tbl.strana * i + this.tbl.strana/2;
-			kontekst.arc(centarX, cntr, this.tbl.strana/4, 0, Math.PI * 2);
+			krug(centarX, cntr, this.tbl.strana/4, boja);
 		}
 		//kontekst.stroke();
-		kontekst.fill();
 	}
 	pomeriAI(){
+		let noviX = -1;
+		let noviY = -1;
 		for(let i = this.x; i>=0; i--){
 			if(this.grandi[this.y][i]==-1)break;
 			if(this.grandi[this.y][i]==0){
-				this.x=i;
-				this.nadjiNajdalje();
-				return;
+				noviX = i;
+				break;
 			}
 		}
 		for(let i = this.y; i>=0; i--){
 			if(this.grandi[i][this.x]==-1)break;
 			if(this.grandi[i][this.x]==0){
-				this.y=i;
-				this.nadjiNajdalje();
-				return;
+				noviY=i;
+				break;
 			}
 		}
+		if(noviX==-1){
+			this.y=noviY;
+		}
+		else if(noviY==-1){
+			this.x=noviX;
+		}
+		else{
+			if(Math.random()>=0.5)this.y=noviY;
+			else this.x=noviX;
+		}
+		this.nadjiNajdalje();
+		this.potez=1;
 	}
-	pomeri(klikX, klikY){
+ 	pomeri(klikX, klikY){
+		if(!this.potez)return;
 		let noviX = Math.floor(klikX/this.tbl.strana);
 		let noviY = Math.floor(klikY/this.tbl.strana);
 		if(noviX==this.x && noviY==this.y)return;
@@ -179,7 +211,12 @@ class Igrac{
 		this.x=noviX;
 		this.y=noviY;
 		this.nadjiNajdalje();
-		this.pomeriAI();
+		this.potez = 0;
+		spavaj(1000).then(() => {
+			this.pomeriAI();
+		});
+		
+		
 	}
 	
 	izracunajGrandi(){
@@ -200,29 +237,35 @@ class Igrac{
 				this.grandi[i][j]=mex;
 			}
 		}
-		if(this.grandi[this.tbl.dimenzija-1][this.tbl.dimenzija-1])this.pomeriAI();
+		if(this.grandi[this.tbl.dimenzija-1][this.tbl.dimenzija-1]){
+			spavaj(1000).then(() => {
+				this.pomeriAI();
+			});
+		}
+		else this.potez = 1;
 	}
 }
-let potez = 0;
 let tabl;
 let igrc;
+
 platno.addEventListener('click', function(event){
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
 function podesi(){
-	tabl = new Tabla(6, 500);
+	tabl = new Tabla(10, 500);
 	tabl.generisiPut();
 	igrc = new Igrac(tabl);
 	igrc.izracunajGrandi();
+	window.requestAnimationFrame(petlja);
 }
-podesi();
+
 function petlja(){
-	kontekst.fillStyle = bojaPozadine;
+	kontekst.fillStyle = temaIgre.bojaPozadine;
 	kontekst.fillRect(0,0,500,500);
 	tabl.crtaj();
 	igrc.crtaj();
 	window.requestAnimationFrame(petlja);
 }
-window.requestAnimationFrame(petlja);
+
 
