@@ -5,11 +5,22 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./style.css">
+	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
 	<title>Maturski</title>
 </head>
 <body>
+	<div>
+		<label for="birac">Boja:</label>
+		<select name="birac" id="biracBoja">
+			<option value="default">Obicna</option>
+			<option value="roze">Roze</option>
+			<option value="funky">Čudna</option>
+		</select>
+	</div>
+	
 	<canvas width="500" height="500" id="platno"></canvas>
-	<script src="./main.js"></script>
 	<button onclick="podesi()">KRENI</button>
+	<button onclick="promeniMod()" id="menjacModa">Protiv racunara</button>
+	<script src="./main.js"></script>
 </body>
 </html>

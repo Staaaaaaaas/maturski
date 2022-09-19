@@ -1,13 +1,17 @@
 
-canvas, button{
+canvas, button, div{
     outline: 5px solid white;
     padding-left: 0;
     padding-right: 0;
     margin-left: auto;
     margin-right: auto;
     display: block;
-}
-
-button{
     width: 500px;
+}
+div{
+    background-color: white;
+}
+select, button, label{
+    font-family: "Roboto";font-size: large;
+    font-weight: bold;
 }

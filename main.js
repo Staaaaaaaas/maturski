@@ -1,8 +1,9 @@
 const platno = document.getElementById("platno");
 const kontekst = platno.getContext("2d");
 const fps = 60;
-
-
+const birac = document.getElementById("biracBoja");
+const menjac = document.getElementById("menjacModa");
+let pvp = 1;
 
 class Tema{
 	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
@@ -14,14 +15,25 @@ class Tema{
 		this.bojaIgraca = igrac;
 	}
 }
-
+const modovi = ["Protiv racunara", "1v1"];
 const boje = {
-	"default": new Tema("#DDB892", "#CCD5AE", "red", "#CCD5AE", "#E9EDC9","#D4A373"),
+	"default": new Tema("#DDB892", "#CCD5AE", "#CCB092", "#CCD5AE", "#E9EDC9","#D4A373"),
 	"roze": new Tema( "#A2D2FF","#BDE0FE", "#CDB4DB", "#CDB4DB", "#FFC8DD","#A2D2FF"),
 	"funky": new Tema( "#00BBF9","#00BBF9", "#FEE440", "#9B5DE5", "#00F5D4","#00BBF9"),
 }
-const temaIgre = boje["default"];
+let temaIgre = boje["default"];
 document.body.style.backgroundColor = temaIgre.bojaPozadine;
+
+function promeniTemu(_novaTema){
+	temaIgre = boje[_novaTema];
+	document.body.style.backgroundColor = temaIgre.bojaPozadine;
+}
+
+function promeniMod(){
+	menjac.innerText = modovi[pvp];
+	pvp = 1-pvp;
+	podesi();
+}
 
 function pozicijaMisa(_desavanje) {
     const rect = platno.getBoundingClientRect()
@@ -125,7 +137,7 @@ class Igrac{
 		}
 	}
 	constructor(tbl){
-		this.potez = 0;
+		this.potez = 1;
 		this.tbl = tbl;
 		this.x = tbl.dimenzija-1;
 		this.y = tbl.dimenzija-1;
@@ -211,10 +223,12 @@ class Igrac{
 		this.x=noviX;
 		this.y=noviY;
 		this.nadjiNajdalje();
-		this.potez = 0;
-		spavaj(1000).then(() => {
-			this.pomeriAI();
-		});
+		if(pvp==0){
+			this.potez = 0;
+			spavaj(1000).then(() => {
+				this.pomeriAI();
+			});
+		}
 		
 		
 	}
@@ -248,15 +262,27 @@ class Igrac{
 let tabl;
 let igrc;
 
-platno.addEventListener('click', function(event){
+birac.addEventListener("change", function(event){
+	//console.log(event);
+	promeniTemu(birac.options[birac.selectedIndex].value);
+	//console.log(birac.options[birac.selectedIndex].value);
+});
+
+
+platno.addEventListener("click", function(event){
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
 function podesi(){
+	kontekst.fillStyle = temaIgre.bojaPozadine;
+	kontekst.fillRect(0,0,500,500);
 	tabl = new Tabla(10, 500);
 	tabl.generisiPut();
 	igrc = new Igrac(tabl);
-	igrc.izracunajGrandi();
+	if(pvp==0){
+		igrc.potez=0
+		igrc.izracunajGrandi();
+	}
 	window.requestAnimationFrame(petlja);
 }
 
