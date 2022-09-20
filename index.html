@@ -16,17 +16,16 @@
 			<option value="roze">Roze</option>
 			<option value="funky">Čudna</option>
 		</select>
-		<label for="grandi">Prikaži Grandi</label>
+		<label for="grandi" id="labelaGrandi">Prikaži Grandi</label>
 		<input type="checkbox" name="grandi" id="grandiCheck">
-	<!--
+	
 		<div class="d-table-cell tgt">
-			<button>NACRTAJ</button>
+			<button onclick="promeniModCrtanja()" id="menjacCrtanja">NACRTAJ</button>
 		</div> 
-	-->
 	</div>
 	
 	<canvas class="glavno" width="500" height="500" id="platno" ></canvas>
-	<button class="glavno" onclick="podesi()">ISPOČETKA</button>
+	<button class="glavno" onclick="podesi()" id="restartDugme">ISPOČETKA</button>
 	<button class="glavno" onclick="promeniMod()" id="menjacModa">Protiv racunara</button>
 	<script src="./main.js"></script>
 </body>

@@ -4,8 +4,11 @@ const fps = 60;
 const birac = document.getElementById("biracBoja");
 const menjac = document.getElementById("menjacModa");
 const checkBox = document.getElementById("grandiCheck");
+const restartDugme = document.getElementById("restartDugme");
+const menjacCrtanja = document.getElementById("menjacCrtanja");
+const labelaGrandi = document.getElementById("labelaGrandi");
 let pvp = 1;
-
+let modCrtanja = false;
 class Tema{
 	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
 		this.bojaPokreta = pokret;
@@ -35,7 +38,28 @@ function promeniMod(){
 	pvp = 1-pvp;
 	podesi();
 }
+function promeniModCrtanja(){
+	modCrtanja = 1-modCrtanja;
+	if(modCrtanja){
+		podesi();
+		menjac.style.display = "none";
+		checkBox.style.display = "none";
+		restartDugme.style.display = "none";
+		labelaGrandi.style.display = "none";
+		menjacCrtanja.innerText = "GOTOVO";
+	}
+	else{
+		menjac.style.display = "";
+		checkBox.style.display = "";
+		restartDugme.style.display = "";
+		labelaGrandi.style.display = "";
+		menjacCrtanja.innerText = "CRTAJ";
+		igrc = new Igrac(tabl);
+		if(!pvp)igrc.potez=0
+		igrc.izracunajGrandi();
 
+	}
+}
 function pozicijaMisa(_desavanje) {
     const rect = platno.getBoundingClientRect()
     const x = _desavanje.clientX - rect.left
@@ -84,6 +108,14 @@ class Tabla{
 				this.matrica[novaDuzina-1].push(0);	
 			}
 		}
+		// if(modCrtanja){
+		// 	this.matrica[this.tabl.dimenzija-1][this.tabl.dimenzija-1]=1;
+		// }
+	}
+	obojiPolje(x, y){
+		let kolona = Math.floor(x/this.strana);
+		let vrsta = Math.floor(y/this.strana);
+		this.matrica[vrsta][kolona] = 1;
 	}
 	crtaj(){
 		kontekst.strokeStyle = temaIgre.bojaZida;
@@ -290,9 +322,17 @@ birac.addEventListener("change", function(event){
 
 
 platno.addEventListener("click", function(event){
+	if(modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
+
+platno.addEventListener("mousedown", function(event){
+	if(!modCrtanja)return;
+	[x, y] = pozicijaMisa(event);
+	tabl.obojiPolje(x,y);
+});
+
 checkBox.addEventListener("click", function(event){
 	igrc.prikaziGrandi = !igrc.prikaziGrandi;
 });
@@ -302,18 +342,24 @@ function podesi(){
 	kontekst.fillStyle = temaIgre.bojaPozadine;
 	kontekst.fillRect(0,0,500,500);
 	tabl = new Tabla(10, 500);
-	tabl.generisiPut();
-	igrc = new Igrac(tabl);
-	if(!pvp)igrc.potez=0
-	igrc.izracunajGrandi();
+	tabl.matrica[tabl.dimenzija-1][tabl.dimenzija-1]=1;
+	if(!modCrtanja){
+		tabl.generisiPut();
+		igrc = new Igrac(tabl);
+		if(!pvp)igrc.potez=0
+		igrc.izracunajGrandi();
+	}
+	
 	window.requestAnimationFrame(petlja);
 }
+
+
 
 function petlja(){
 	kontekst.fillStyle = temaIgre.bojaPozadine;
 	kontekst.fillRect(0,0,500,500);
 	tabl.crtaj();
-	igrc.crtaj();
+	if(!modCrtanja)igrc.crtaj();
 	window.requestAnimationFrame(petlja);
 }
 
