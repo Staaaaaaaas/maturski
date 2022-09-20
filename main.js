@@ -9,6 +9,7 @@ const menjacCrtanja = document.getElementById("menjacCrtanja");
 const labelaGrandi = document.getElementById("labelaGrandi");
 let pvp = 1;
 let modCrtanja = false;
+let crtam = false;
 class Tema{
 	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
 		this.bojaPokreta = pokret;
@@ -326,9 +327,16 @@ platno.addEventListener("click", function(event){
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
-
 platno.addEventListener("mousedown", function(event){
 	if(!modCrtanja)return;
+	crtam = 1;
+});
+platno.addEventListener("mouseup", function(event){
+	if(!modCrtanja)return;
+	crtam = 0;
+});
+platno.addEventListener("mousemove", function(event){
+	if(!crtam)return;
 	[x, y] = pozicijaMisa(event);
 	tabl.obojiPolje(x,y);
 });
