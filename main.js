@@ -3,6 +3,7 @@ const kontekst = platno.getContext("2d");
 const fps = 60;
 const birac = document.getElementById("biracBoja");
 const menjac = document.getElementById("menjacModa");
+const checkBox = document.getElementById("grandiCheck");
 let pvp = 1;
 
 class Tema{
@@ -20,7 +21,7 @@ const boje = {
 	"default": new Tema("#DDB892", "#CCD5AE", "#CCB092", "#CCD5AE", "#E9EDC9","#D4A373"),
 	"roze": new Tema( "#A2D2FF","#BDE0FE", "#CDB4DB", "#CDB4DB", "#FFC8DD","#A2D2FF"),
 	"funky": new Tema( "#00BBF9","#00BBF9", "#FEE440", "#9B5DE5", "#00F5D4","#00BBF9"),
-}
+};
 let temaIgre = boje["default"];
 document.body.style.backgroundColor = temaIgre.bojaPozadine;
 
@@ -64,6 +65,13 @@ function krug(x, y, r, boja){
 	kontekst.fill();
 }
 
+function tekst(rec, boja, velicina, x, y){
+	kontekst.textAlign = "center";
+	kontekst.font = velicina+"px roboto";
+	kontekst.fillStyle = boja;
+	kontekst.fillText(rec, x, y);
+}
+
 class Tabla{
 	constructor(dimenzija, velicina){
 		this.dimenzija = dimenzija;
@@ -91,26 +99,26 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona){
+	dfs(vrsta, kolona, rng){
 		if(vrsta >= this.dimenzija-1 && kolona >= this.dimenzija){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(vrsta == this.dimenzija-1){
-			this.dfs(vrsta, kolona+1);
+			this.dfs(vrsta, kolona+1,rng);
 			return;
 		}
 		if(kolona == this.dimenzija-1){
-			this.dfs(vrsta+1, kolona);
+			this.dfs(vrsta+1, kolona,rng);
 			return;
 		}
 		
 		let rezultat = Math.random();
-		if(rezultat >= 0.5){
-			this.dfs(vrsta+1, kolona);
+		if(rezultat >= rng){
+			this.dfs(vrsta+1, kolona,rng);
 		}
 		else{
-			this.dfs(vrsta, kolona+1);
+			this.dfs(vrsta, kolona+1,rng);
 		}
 		
 	}
@@ -137,6 +145,7 @@ class Igrac{
 		}
 	}
 	constructor(tbl){
+		this.prikaziGrandi = checkBox.checked;
 		this.potez = 1;
 		this.tbl = tbl;
 		this.x = tbl.dimenzija-1;
@@ -160,24 +169,34 @@ class Igrac{
 		}
 	}
 	crtaj(){
+		//crtam grandi
 		
-		//kontekst.strokeStyle = bojaOkviraIgraca;
 		let centarX = this.tbl.strana * this.x + this.tbl.strana/2;
 		let centarY = this.tbl.strana * this.y + this.tbl.strana/2;
 		krug(centarX, centarY, this.tbl.strana/2 * 0.9, temaIgre.bojaIgraca);
 		let bojaPoteza = temaIgre.bojaPokreta;
 		if(!this.potez)bojaPoteza = temaIgre.bojaPokretaAI;
+		
 		for(let i = this.x-1; i>=this.najdaljiX; i--){
 			let boja = bojaPoteza;
-			if(this.grandi[this.y][i]==0)boja = temaIgre.bojaCilja;
+			if(pvp == 0 && this.grandi[this.y][i]==0)boja = temaIgre.bojaCilja;
 			let cntr = this.tbl.strana * i + this.tbl.strana/2;
 			krug(cntr, centarY, this.tbl.strana/4, boja);
 		}
 		for(let i = this.y-1; i>=this.najdaljiY; i--){
 			let boja = bojaPoteza;
-			if(this.grandi[i][this.x]==0)boja = temaIgre.bojaCilja;
+			if(pvp==0 && this.grandi[i][this.x]==0)boja = temaIgre.bojaCilja;
 			let cntr = this.tbl.strana * i + this.tbl.strana/2;
 			krug(centarX, cntr, this.tbl.strana/4, boja);
+		}
+		if(this.prikaziGrandi){
+			kontekst.translate(this.tbl.strana*0.5, this.tbl.strana*0.65);
+			for(let i = 0; i<this.tbl.dimenzija; i++){
+				for(let j=0; j<this.tbl.dimenzija; j++){
+					tekst(this.grandi[i][j],"grey",this.tbl.strana*0.5,this.tbl.strana*j, this.tbl.strana*i);
+				}
+			}
+			kontekst.translate(-this.tbl.strana*0.5, -this.tbl.strana*0.65);
 		}
 		//kontekst.stroke();
 	}
@@ -251,6 +270,7 @@ class Igrac{
 				this.grandi[i][j]=mex;
 			}
 		}
+		if(pvp)return;
 		if(this.grandi[this.tbl.dimenzija-1][this.tbl.dimenzija-1]){
 			spavaj(1000).then(() => {
 				this.pomeriAI();
@@ -273,16 +293,19 @@ platno.addEventListener("click", function(event){
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
+checkBox.addEventListener("click", function(event){
+	igrc.prikaziGrandi = !igrc.prikaziGrandi;
+});
+
+
 function podesi(){
 	kontekst.fillStyle = temaIgre.bojaPozadine;
 	kontekst.fillRect(0,0,500,500);
 	tabl = new Tabla(10, 500);
 	tabl.generisiPut();
 	igrc = new Igrac(tabl);
-	if(pvp==0){
-		igrc.potez=0
-		igrc.izracunajGrandi();
-	}
+	if(!pvp)igrc.potez=0
+	igrc.izracunajGrandi();
 	window.requestAnimationFrame(petlja);
 }
 

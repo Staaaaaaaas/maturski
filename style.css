@@ -1,5 +1,5 @@
 
-canvas, button, div{
+.glavno{
     outline: 5px solid white;
     padding-left: 0;
     padding-right: 0;
@@ -14,4 +14,13 @@ div{
 select, button, label{
     font-family: "Roboto";font-size: large;
     font-weight: bold;
+}
+.d-table{
+    display: table;
+}
+.d-table-cell{
+    display: table-cell;
+}
+.tgt{
+    text-align: right;
 }
