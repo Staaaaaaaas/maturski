@@ -132,33 +132,36 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona, rng){
+	dfs(vrsta, kolona, rng, duzina){
 		if(vrsta >= this.dimenzija-1 && kolona >= this.dimenzija){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(vrsta == this.dimenzija-1){
-			this.dfs(vrsta, kolona+1,rng);
+			this.dfs(vrsta, kolona+1,rng,duzina);
 			return;
 		}
 		if(kolona == this.dimenzija-1){
-			this.dfs(vrsta+1, kolona,rng);
+			this.dfs(vrsta+1, kolona,rng,duzina);
 			return;
 		}
-		
+		if(duzina==0){
+			duzina=Math.floor(Math.random()*(this.dimenzija));
+			rng=Math.random();
+		}
 		let rezultat = Math.random();
 		if(rezultat >= rng){
-			this.dfs(vrsta+1, kolona,rng);
+			this.dfs(vrsta+1, kolona,rng,duzina-1);
 		}
 		else{
-			this.dfs(vrsta, kolona+1,rng);
+			this.dfs(vrsta, kolona+1,rng,duzina-1);
 		}
 		
 	}
 	generisiPut(){
-		let brojPuteva = 3+	Math.floor(Math.random()*this.dimenzija);
+		let brojPuteva = Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija);
 		for(let i=0;i<brojPuteva;i++){
-			this.dfs(0,0, Math.random());
+			this.dfs(0,0, Math.random(), 0);
 		}
 	}
 	
