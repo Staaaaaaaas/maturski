@@ -10,6 +10,13 @@ const labelaGrandi = document.getElementById("labelaGrandi");
 let pvp = 1;
 let modCrtanja = false;
 let crtam = false;
+let dimenzijaTable = 10;
+
+function promeniDimenzije(novaDimenzija){
+	dimenzijaTable=novaDimenzija;
+	podesi();
+}
+
 class Tema{
 	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
 		this.bojaPokreta = pokret;
@@ -55,6 +62,7 @@ function promeniModCrtanja(){
 		restartDugme.style.display = "";
 		labelaGrandi.style.display = "";
 		menjacCrtanja.innerText = "CRTAJ";
+		crtam=false;
 		igrc = new Igrac(tabl);
 		if(!pvp)igrc.potez=0
 		igrc.izracunajGrandi();
@@ -133,16 +141,16 @@ class Tabla{
 		}
 	}
 	dfs(vrsta, kolona, rng, duzina){
-		if(vrsta >= this.dimenzija-1 && kolona >= this.dimenzija){
+		if(vrsta > this.dimenzija-1 || kolona > this.dimenzija-1){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
-		if(vrsta == this.dimenzija-1){
-			this.dfs(vrsta, kolona+1,rng,duzina);
+		if(kolona==this.dimenzija-1){
+			this.dfs(vrsta+1, kolona,rng,duzina-1);
 			return;
 		}
-		if(kolona == this.dimenzija-1){
-			this.dfs(vrsta+1, kolona,rng,duzina);
+		if(vrsta==this.dimenzija-1){
+			this.dfs(vrsta, kolona+1,rng,duzina-1);
 			return;
 		}
 		if(duzina==0){
@@ -150,7 +158,7 @@ class Tabla{
 			rng=Math.random();
 		}
 		let rezultat = Math.random();
-		if(rezultat >= rng){
+		if(rezultat >= rng ){
 			this.dfs(vrsta+1, kolona,rng,duzina-1);
 		}
 		else{
@@ -228,7 +236,7 @@ class Igrac{
 		if(this.prikaziGrandi){
 			kontekst.translate(this.tbl.strana*0.5, this.tbl.strana*0.65);
 			for(let i = 0; i<this.tbl.dimenzija; i++){
-				for(let j=0; j<this.tbl.dimenzija; j++){
+				for(let j=0; j<this.tbl.dimenzija; j++)if(this.grandi[i][j]>=0){
 					tekst(this.grandi[i][j],"grey",this.tbl.strana*0.5,this.tbl.strana*j, this.tbl.strana*i);
 				}
 			}
@@ -352,7 +360,7 @@ checkBox.addEventListener("click", function(event){
 function podesi(){
 	kontekst.fillStyle = temaIgre.bojaPozadine;
 	kontekst.fillRect(0,0,500,500);
-	tabl = new Tabla(10, 500);
+	tabl = new Tabla(dimenzijaTable, 500);
 	tabl.matrica[tabl.dimenzija-1][tabl.dimenzija-1]=1;
 	if(!modCrtanja){
 		tabl.generisiPut();
