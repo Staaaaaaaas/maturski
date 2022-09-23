@@ -29,7 +29,8 @@ class Tema{
 }
 const modovi = ["Protiv racunara", "1v1"];
 const boje = {
-	"default": new Tema("#DDB892", "#CCD5AE", "#CCB092", "#CCD5AE", "#E9EDC9","#D4A373"),
+	"default": new Tema("black", "black","#aaaaaa","black","#dddddd", "black"),
+	"priroda": new Tema("#DDB892", "#CCD5AE", "#CCB092", "#CCD5AE", "#E9EDC9","#D4A373"),
 	"roze": new Tema( "#A2D2FF","#BDE0FE", "#CDB4DB", "#CDB4DB", "#FFC8DD","#A2D2FF"),
 	"funky": new Tema( "#00BBF9","#00BBF9", "#FEE440", "#9B5DE5", "#00F5D4","#00BBF9"),
 };
