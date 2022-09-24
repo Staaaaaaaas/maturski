@@ -4,6 +4,8 @@ const fps = 60;
 const birac = document.getElementById("biracBoja");
 const menjac = document.getElementById("menjacModa");
 const checkBox = document.getElementById("grandiCheck");
+const checkBoxMisere = document.getElementById("misereCheck");
+const labelaMisere = document.getElementById("labelaMisere");
 const restartDugme = document.getElementById("restartDugme");
 const menjacCrtanja = document.getElementById("menjacCrtanja");
 const labelaGrandi = document.getElementById("labelaGrandi");
@@ -11,12 +13,12 @@ let pvp = 1;
 let modCrtanja = false;
 let crtam = false;
 let dimenzijaTable = 10;
+let misere = 0;
 
 function promeniDimenzije(novaDimenzija){
 	dimenzijaTable=novaDimenzija;
 	podesi();
 }
-
 class Tema{
 	constructor(pokret, pokretAI, cilj, zid, pozadina, igrac){
 		this.bojaPokreta = pokret;
@@ -29,7 +31,7 @@ class Tema{
 }
 const modovi = ["Protiv racunara", "1v1"];
 const boje = {
-	"default": new Tema("black", "black","#aaaaaa","black","#dddddd", "black"),
+	"default": new Tema("#696969", "black","#aaaaaa","black","#cccccc", "black"),
 	"priroda": new Tema("#DDB892", "#CCD5AE", "#CCB092", "#CCD5AE", "#E9EDC9","#D4A373"),
 	"roze": new Tema( "#A2D2FF","#BDE0FE", "#CDB4DB", "#CDB4DB", "#FFC8DD","#A2D2FF"),
 	"funky": new Tema( "#00BBF9","#00BBF9", "#FEE440", "#9B5DE5", "#00F5D4","#00BBF9"),
@@ -53,15 +55,19 @@ function promeniModCrtanja(){
 		podesi();
 		menjac.style.display = "none";
 		checkBox.style.display = "none";
+		checkBoxMisere.style.display = "none";
 		restartDugme.style.display = "none";
 		labelaGrandi.style.display = "none";
+		labelaMisere.style.display = "none";
 		menjacCrtanja.innerText = "GOTOVO";
 	}
 	else{
 		menjac.style.display = "";
 		checkBox.style.display = "";
+		checkBoxMisere.style.display = "";
 		restartDugme.style.display = "";
 		labelaGrandi.style.display = "";
+		labelaMisere.style.display = "";
 		menjacCrtanja.innerText = "CRTAJ";
 		crtam=false;
 		igrc = new Igrac(tabl);
@@ -246,6 +252,7 @@ class Igrac{
 		//kontekst.stroke();
 	}
 	pomeriAI(){
+		if(this.x==0 && this.y==0)return;
 		let noviX = -1;
 		let noviY = -1;
 		for(let i = this.x; i>=0; i--){
@@ -300,7 +307,18 @@ class Igrac{
 	izracunajGrandi(){
 		let kolona = Array(this.tbl.dimenzija);
 		let vrsta = 0;
+		if(misere){
+			for(let i =0;i<this.tbl.dimenzija;i++){
+				for(let j =0;j<this.tbl.dimenzija;j++){
+					if(i==0&&j==0 || i&&j&&this.tbl.matrica[i-1][j]==0&&this.tbl.matrica[i][j-1]==0){
+						this.grandi[i][j]=1;
+					}
+				}
+			}
+		}
+		
 		for(let i=0;i<this.tbl.dimenzija;i++){
+			
 			vrsta=0;
 			for(let j=0;j<this.tbl.dimenzija;j++){
 				if(this.tbl.matrica[i][j]==0){
@@ -310,6 +328,7 @@ class Igrac{
 					continue;
 				}
 				let mex = nadjiNajdesnijuNulu(vrsta | kolona[j]);
+				if(this.grandi[i][j])mex=this.grandi[i][j];
 				vrsta|=(1<<mex);
 				kolona[j]|=(1<<mex);
 				this.grandi[i][j]=mex;
@@ -356,7 +375,10 @@ platno.addEventListener("mousemove", function(event){
 checkBox.addEventListener("click", function(event){
 	igrc.prikaziGrandi = !igrc.prikaziGrandi;
 });
-
+checkBoxMisere.addEventListener("click", function(event){
+	misere=1-misere;
+	podesi();	
+});
 
 function podesi(){
 	kontekst.fillStyle = temaIgre.bojaPozadine;
