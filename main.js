@@ -310,7 +310,7 @@ class Igrac{
 		if(misere){
 			for(let i =0;i<this.tbl.dimenzija;i++){
 				for(let j =0;j<this.tbl.dimenzija;j++){
-					if(i==0&&j==0 || i&&j&&this.tbl.matrica[i-1][j]==0&&this.tbl.matrica[i][j-1]==0){
+					if((i==0 || this.tbl.matrica[i-1][j]==0)&& (j==0 || this.tbl.matrica[i][j-1]==0 )){
 						this.grandi[i][j]=1;
 					}
 				}
