@@ -252,7 +252,7 @@ class Igrac{
 		//kontekst.stroke();
 	}
 	pomeriAI(){
-		if(this.x==0 && this.y==0)return;
+		if((this.x==0 || this.tbl.matrica[this.y][this.x-1]==0) && (this.y==0 || this.tbl.matrica[this.y-1][this.x]==0))return;
 		let noviX = -1;
 		let noviY = -1;
 		for(let i = this.x; i>=0; i--){
