@@ -184,8 +184,6 @@ class Tabla{
 
 class Igrac{
 	nadjiNajdalje(){
-		this.najdaljiX=this.x;
-		this.najdaljiY=this.y;
 		for(let i = this.x; i>=0; i--){
 			if(this.tbl.matrica[this.y][i]==0)break;
 			this.najdaljiX = i;
@@ -194,6 +192,10 @@ class Igrac{
 			if(this.tbl.matrica[i][this.x]==0)break;
 			this.najdaljiY = i;
 		}
+		for(let i = this.y, j = this.x; i>=0 && j>=0; i--, j--){
+			if(this.tbl.matrica[i][j]==0)break;
+			this.najdaljiDiag = i;
+		}
 	}
 	constructor(tbl){
 		this.prikaziGrandi = checkBox.checked;
@@ -201,16 +203,10 @@ class Igrac{
 		this.tbl = tbl;
 		this.x = tbl.dimenzija-1;
 		this.y = tbl.dimenzija-1;
-		this.najdaljiX = this.x;
-		for(let i=this.x;i>=0;i--){
-			if(this.tbl.matrica[this.y][i]==0)break;
-			this.najdaljiX=i;
-		}
-		this.najdaljiY = this.y;
-		for(let i=this.y;i>=0;i--){
-			if(this.tbl.matrica[i][this.x]==0)break;
-			this.najdaljiY=i;
-		}
+		this.najdaljiX=this.x;
+		this.najdaljiY=this.y;
+		this.najdaljiDiag=this.y;
+		this.nadjiNajdalje();
 		this.grandi = [];
 		for(let i = 0; i<this.tbl.dimenzija; i++){
 			let novaDuzina = this.grandi.push([]);
@@ -240,6 +236,15 @@ class Igrac{
 			let cntr = this.tbl.strana * i + this.tbl.strana/2;
 			krug(centarX, cntr, this.tbl.strana/4, boja);
 		}
+		for(let i = this.y-1, j = this.x-1; i>=this.najdaljiDiag; i--,j--){
+			//console.log(i,j);
+			let boja = bojaPoteza;
+			if(pvp==0 && this.grandi[i][j]==0)boja = temaIgre.bojaCilja;
+			let cntr = this.tbl.strana * i + this.tbl.strana/2;
+			let cntr2 = this.tbl.strana * j + this.tbl.strana/2;
+			krug(cntr2, cntr, this.tbl.strana/4, boja);
+			
+		}
 		if(this.prikaziGrandi){
 			kontekst.translate(this.tbl.strana*0.5, this.tbl.strana*0.65);
 			for(let i = 0; i<this.tbl.dimenzija; i++){
@@ -249,12 +254,12 @@ class Igrac{
 			}
 			kontekst.translate(-this.tbl.strana*0.5, -this.tbl.strana*0.65);
 		}
-		//kontekst.stroke();
 	}
 	pomeriAI(){
 		if((this.x==0 || this.tbl.matrica[this.y][this.x-1]==0) && (this.y==0 || this.tbl.matrica[this.y-1][this.x]==0))return;
 		let noviX = -1;
 		let noviY = -1;
+		let noviDiag = [-1,-1];
 		for(let i = this.x; i>=0; i--){
 			if(this.grandi[this.y][i]==-1)break;
 			if(this.grandi[this.y][i]==0){
@@ -265,19 +270,27 @@ class Igrac{
 		for(let i = this.y; i>=0; i--){
 			if(this.grandi[i][this.x]==-1)break;
 			if(this.grandi[i][this.x]==0){
+				//console.log('a');
 				noviY=i;
 				break;
 			}
 		}
-		if(noviX==-1){
-			this.y=noviY;
+		for(let i = this.y, j =this.x; i>=0 && j>=0; i--, j--){
+			if(this.grandi[i][j]==-1)break;
+			if(this.grandi[i][j]==0){
+				noviDiag=[i,j];
+				break;
+			}
 		}
-		else if(noviY==-1){
+		//let izbor = Math.floor(Math.random()*3);
+		if(noviX!=-1){
 			this.x=noviX;
 		}
+		else if(noviY!=-1){
+			this.y=noviY;
+		}
 		else{
-			if(Math.random()>=0.5)this.y=noviY;
-			else this.x=noviX;
+			[this.y, this.x] = noviDiag;
 		}
 		this.nadjiNajdalje();
 		this.potez=1;
@@ -288,9 +301,9 @@ class Igrac{
 		let noviY = Math.floor(klikY/this.tbl.strana);
 		if(noviX==this.x && noviY==this.y)return;
 		//console.log(klikX);
-		if(noviX!=this.x && noviY!=this.y)return;
-		if(noviX<this.najdaljiX || noviY<this.najdaljiY)return;
-		if(noviX>this.x || noviY > this.y)return;
+		if(noviX!=this.x && noviY!=this.y && noviY-noviX!=this.y-this.x)return;
+		if(noviY==this.y && noviX<this.najdaljiX || noviX==this.x && noviY<this.najdaljiY || noviY-noviX==this.y-this.x && noviY<this.najdaljiDiag)return;
+		if(noviY==this.y && noviX>this.x || noviX==this.x && noviY>this.y || noviY-noviX==this.y-this.x && noviY>this.y)return;
 		this.x=noviX;
 		this.y=noviY;
 		this.nadjiNajdalje();
@@ -306,7 +319,9 @@ class Igrac{
 	
 	izracunajGrandi(){
 		let kolona = Array(this.tbl.dimenzija);
+		let diag = Array(2*this.tbl.dimenzija);
 		let vrsta = 0;
+
 		if(misere){
 			for(let i =0;i<this.tbl.dimenzija;i++){
 				for(let j =0;j<this.tbl.dimenzija;j++){
@@ -324,13 +339,15 @@ class Igrac{
 				if(this.tbl.matrica[i][j]==0){
 					vrsta = 0;
 					kolona[j]=0;
+					diag[i-j+this.tbl.dimenzija]=0;
 					this.grandi[i][j]=-1;
 					continue;
 				}
-				let mex = nadjiNajdesnijuNulu(vrsta | kolona[j]);
+				let mex = nadjiNajdesnijuNulu(vrsta | kolona[j] | diag[i-j+this.tbl.dimenzija]);
 				if(this.grandi[i][j])mex=this.grandi[i][j];
 				vrsta|=(1<<mex);
 				kolona[j]|=(1<<mex);
+				diag[i-j+this.tbl.dimenzija]|=(1<<mex);
 				this.grandi[i][j]=mex;
 			}
 		}
