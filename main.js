@@ -393,7 +393,7 @@ platno.addEventListener("mousedown", function(event){
 	crtam = 1;
 });
 platno.addEventListener("touchstart", function(event){
-	event.preventDefault();
+	// event.preventDefault();
 	if(!modCrtanja)return;
 	crtam = 1;
 });
@@ -403,7 +403,7 @@ platno.addEventListener("mouseup", function(event){
 	crtam = 0;
 });
 platno.addEventListener("touchend", function(event){
-	event.preventDefault();
+	// event.preventDefault();
 	if(!modCrtanja)return;
 	crtam = 0;
 });
