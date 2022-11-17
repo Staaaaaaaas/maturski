@@ -12,7 +12,7 @@ const labelaGrandi = document.getElementById("labelaGrandi");
 let pvp = 1;
 let modCrtanja = false;
 let crtam = false;
-let dimenzijaTable = 10;
+const dimenzijaTable = 15;
 let misere = 0;
 
 function promeniDimenzije(novaDimenzija){
@@ -147,36 +147,37 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona, rng, duzina){
+	dfs(vrsta, kolona, coef, offset){
 		if(vrsta > this.dimenzija-1 || kolona > this.dimenzija-1){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(kolona==this.dimenzija-1){
-			this.dfs(vrsta+1, kolona,rng,duzina-1);
+			this.dfs(vrsta+1, kolona, coef, offset);
 			return;
 		}
 		if(vrsta==this.dimenzija-1){
-			this.dfs(vrsta, kolona+1,rng,duzina-1);
+			this.dfs(vrsta, kolona+1, coef, offset);
 			return;
 		}
-		if(duzina==0){
-			duzina=Math.floor(Math.random()*(this.dimenzija));
-			rng=Math.random();
-		}
+		let x = vrsta+kolona+offset;
+		let verovY = coef*(2*Math.cos(2*x) + Math.PI*Math.cos(Math.PI*x));
+		let verovX = 1/(1+verovY);
+		verovY *= verovX;
 		let rezultat = Math.random();
-		if(rezultat >= rng ){
-			this.dfs(vrsta+1, kolona,rng,duzina-1);
+		if(rezultat >= verovX){
+			
+			this.dfs(vrsta+1, kolona, coef, offset);
 		}
 		else{
-			this.dfs(vrsta, kolona+1,rng,duzina-1);
+			this.dfs(vrsta, kolona+1,coef, offset);
 		}
 		
 	}
 	generisiPut(){
-		let brojPuteva = Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija);
+		let brojPuteva = Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija/2);
 		for(let i=0;i<brojPuteva;i++){
-			this.dfs(0,0, Math.random(), 0);
+			this.dfs(0,0, Math.random(), Math.random()*1000);
 		}
 	}
 	
