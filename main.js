@@ -376,19 +376,40 @@ birac.addEventListener("change", function(event){
 
 
 platno.addEventListener("click", function(event){
+	event.preventDefault();
 	if(modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
 });
 platno.addEventListener("mousedown", function(event){
+	event.preventDefault();
+	if(!modCrtanja)return;
+	crtam = 1;
+});
+platno.addEventListener("touchstart", function(event){
+	event.preventDefault();
 	if(!modCrtanja)return;
 	crtam = 1;
 });
 platno.addEventListener("mouseup", function(event){
+	event.preventDefault();
+	if(!modCrtanja)return;
+	crtam = 0;
+});
+platno.addEventListener("touchend", function(event){
+	event.preventDefault();
 	if(!modCrtanja)return;
 	crtam = 0;
 });
 platno.addEventListener("mousemove", function(event){
+	event.preventDefault();
+	if(!crtam)return;
+	[x, y] = pozicijaMisa(event);
+	tabl.obojiPolje(x,y);
+});
+
+platno.addEventListener("touchmove", function(event){
+	event.preventDefault();
 	if(!crtam)return;
 	[x, y] = pozicijaMisa(event);
 	tabl.obojiPolje(x,y);
