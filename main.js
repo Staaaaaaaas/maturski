@@ -261,10 +261,12 @@ class Igrac{
 		let noviX = -1;
 		let noviY = -1;
 		let noviDiag = [-1,-1];
+		let moguci = [];
 		for(let i = this.x; i>=0; i--){
 			if(this.grandi[this.y][i]==-1)break;
 			if(this.grandi[this.y][i]==0){
 				noviX = i;
+				moguci.push("horizontalno");
 				break;
 			}
 		}
@@ -273,6 +275,7 @@ class Igrac{
 			if(this.grandi[i][this.x]==0){
 				//console.log('a');
 				noviY=i;
+				moguci.push("vertikalno");
 				break;
 			}
 		}
@@ -280,14 +283,15 @@ class Igrac{
 			if(this.grandi[i][j]==-1)break;
 			if(this.grandi[i][j]==0){
 				noviDiag=[i,j];
+				moguci.push("diagonalno");
 				break;
 			}
 		}
-		//let izbor = Math.floor(Math.random()*3);
-		if(noviX!=-1){
+		let izbor = Math.floor(Math.random()*moguci.length);
+		if(moguci[izbor]=="horizontalno"){
 			this.x=noviX;
 		}
-		else if(noviY!=-1){
+		else if(moguci[izbor]=="vertikalno"){
 			this.y=noviY;
 		}
 		else{
