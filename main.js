@@ -77,9 +77,16 @@ function promeniModCrtanja(){
 	}
 }
 function pozicijaMisa(_desavanje) {
-    const rect = platno.getBoundingClientRect()
-    const x = _desavanje.clientX - rect.left
-    const y = _desavanje.clientY - rect.top
+    const rect = platno.getBoundingClientRect();
+	let x, y;
+	if(_desavanje.type == "mousemove" || _desavanje.type=="click"){
+		x = _desavanje.clientX - rect.left;
+    	y = _desavanje.clientY - rect.top;
+	}
+	else{
+		x = _desavanje.touches[0].pageX - rect.left;
+    	y = _desavanje.touches[0].pageY  - rect.top;
+	}
     return [x,y];
 }
 
@@ -403,14 +410,14 @@ platno.addEventListener("touchend", function(event){
 });
 platno.addEventListener("mousemove", function(event){
 	event.preventDefault();
-	if(!crtam)return;
+	if(!crtam || !modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	tabl.obojiPolje(x,y);
 });
 
 platno.addEventListener("touchmove", function(event){
 	event.preventDefault();
-	if(!crtam)return;
+	if(!crtam || !modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	tabl.obojiPolje(x,y);
 });
