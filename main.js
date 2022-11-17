@@ -383,7 +383,6 @@ birac.addEventListener("change", function(event){
 
 
 platno.addEventListener("click", function(event){
-	event.preventDefault();
 	if(modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	igrc.pomeri(x,y);
