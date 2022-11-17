@@ -301,7 +301,7 @@ class Igrac{
 		else if(moguci[izbor]=="vertikalno"){
 			this.y=noviY;
 		}
-		else{
+		else if(moguci[izbor]=="diagonalno"){
 			[this.y, this.x] = noviDiag;
 		}
 		this.nadjiNajdalje();
