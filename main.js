@@ -189,7 +189,7 @@ class Tabla{
 		
 	}
 	generisiPut(){
-		let brojPuteva = 5;//Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija/2);
+		let brojPuteva = Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija/2);
 		for(let i=0;i<brojPuteva;i++){
 			this.dfs(0,0,[randRange(-100,100), randRange(0,2), randRange(1,5)]);
 		}
@@ -263,7 +263,7 @@ class Igrac{
 		if(this.prikaziGrandi){
 			kontekst.translate(this.tbl.strana*0.5, this.tbl.strana*0.65);
 			for(let i = 0; i<this.tbl.dimenzija; i++){
-				for(let j=0; j<this.tbl.dimenzija; j++)if(this.grandi[i][j]>=0){
+				for(let j=0; j<this.tbl.dimenzija; j++)if(this.grandi[i][j]>=-1){
 					tekst(this.grandi[i][j],"grey",this.tbl.strana*0.5,this.tbl.strana*j, this.tbl.strana*i);
 				}
 			}
@@ -271,7 +271,7 @@ class Igrac{
 		}
 	}
 	pomeriAI(){
-		if((this.x==0 || this.tbl.matrica[this.y][this.x-1]==-1) && (this.y==0 || this.tbl.matrica[this.y-1][this.x]==-1))return;
+		if((this.x==0 || this.y==0) || (this.x>0 && this.y>0 && this.tbl.matrica[this.y-1][this.x]==0 && this.tbl.matrica[this.y][this.x-1]==0 && this.tbl.matrica[this.y-1][this.x-1]==0))return;
 		let noviX = -1;
 		let noviY = -1;
 		let noviDiag = [-1,-1];
@@ -346,7 +346,7 @@ class Igrac{
 		if(misere){
 			for(let i =0;i<this.tbl.dimenzija;i++){
 				for(let j =0;j<this.tbl.dimenzija;j++){
-					if((i==0 || this.tbl.matrica[i-1][j]==0)&& (j==0 || this.tbl.matrica[i][j-1]==0 )){
+					if((j==0 || i==0) || (j>0 && i>0 && this.tbl.matrica[i-1][j]==0 && this.tbl.matrica[i][j-1]==0 && this.tbl.matrica[i-1][j-1]==0)){
 						this.grandi[i][j]=1;
 					}
 				}
