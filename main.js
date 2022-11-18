@@ -15,6 +15,11 @@ let crtam = false;
 const dimenzijaTable = 15;
 let misere = 0;
 
+function randRange(min, max){
+	let ret = Math.random()*(max-min)+min;
+	return ret;
+}
+
 function promeniDimenzije(novaDimenzija){
 	dimenzijaTable=novaDimenzija;
 	podesi();
@@ -154,37 +159,39 @@ class Tabla{
 			}
 		}
 	}
-	dfs(vrsta, kolona, coef, offset){
+	dfs(vrsta, kolona, params){
 		if(vrsta > this.dimenzija-1 || kolona > this.dimenzija-1){
 			return;
 		}
 		this.matrica[vrsta][kolona]=1;
 		if(kolona==this.dimenzija-1){
-			this.dfs(vrsta+1, kolona, coef, offset);
+			this.dfs(vrsta+1, kolona, params);
 			return;
 		}
 		if(vrsta==this.dimenzija-1){
-			this.dfs(vrsta, kolona+1, coef, offset);
+			this.dfs(vrsta, kolona+1, params);
 			return;
 		}
-		let x = vrsta+kolona+offset;
-		let verovY = coef*(2*Math.cos(2*x) + Math.PI*Math.cos(Math.PI*x));
+		let [a,b,c] = params;
+		let x = vrsta+kolona+a;
+		x/=this.dimenzija;
+		let verovY = b*(Math.sin(2*x/c)+Math.sin(Math.PI*x)+2);
 		let verovX = 1/(1+verovY);
 		verovY *= verovX;
 		let rezultat = Math.random();
 		if(rezultat >= verovX){
 			
-			this.dfs(vrsta+1, kolona, coef, offset);
+			this.dfs(vrsta+1, kolona, params);
 		}
 		else{
-			this.dfs(vrsta, kolona+1,coef, offset);
+			this.dfs(vrsta, kolona+1,params);
 		}
 		
 	}
 	generisiPut(){
-		let brojPuteva = Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija/2);
+		let brojPuteva = 5;//Math.floor(this.dimenzija/2)+	Math.floor(Math.random()*this.dimenzija/2);
 		for(let i=0;i<brojPuteva;i++){
-			this.dfs(0,0, Math.random(), Math.random()*1000);
+			this.dfs(0,0,[randRange(-100,100), randRange(0,2), randRange(1,5)]);
 		}
 	}
 	
@@ -264,11 +271,12 @@ class Igrac{
 		}
 	}
 	pomeriAI(){
-		if((this.x==0 || this.tbl.matrica[this.y][this.x-1]==0) && (this.y==0 || this.tbl.matrica[this.y-1][this.x]==0))return;
+		if((this.x==0 || this.tbl.matrica[this.y][this.x-1]==-1) && (this.y==0 || this.tbl.matrica[this.y-1][this.x]==-1))return;
 		let noviX = -1;
 		let noviY = -1;
 		let noviDiag = [-1,-1];
 		let moguci = [];
+		
 		for(let i = this.x; i>=0; i--){
 			if(this.grandi[this.y][i]==-1)break;
 			if(this.grandi[this.y][i]==0){
@@ -287,6 +295,7 @@ class Igrac{
 			}
 		}
 		for(let i = this.y, j =this.x; i>=0 && j>=0; i--, j--){
+			
 			if(this.grandi[i][j]==-1)break;
 			if(this.grandi[i][j]==0){
 				noviDiag=[i,j];
@@ -415,7 +424,7 @@ platno.addEventListener("mousemove", function(event){
 });
 
 platno.addEventListener("touchmove", function(event){
-	event.preventDefault();
+	//event.preventDefault();
 	if(!crtam || !modCrtanja)return;
 	[x, y] = pozicijaMisa(event);
 	tabl.obojiPolje(x,y);
