@@ -271,7 +271,7 @@ class Igrac{
 		}
 	}
 	pomeriAI(){
-		if((this.x==0 || this.y==0) || (this.x>0 && this.y>0 && this.tbl.matrica[this.y-1][this.x]==0 && this.tbl.matrica[this.y][this.x-1]==0 && this.tbl.matrica[this.y-1][this.x-1]==0))return;
+		if((this.x==0 && this.y==0) || (this.x>0 && this.y>0 && this.tbl.matrica[this.y-1][this.x]==0 && this.tbl.matrica[this.y][this.x-1]==0 && this.tbl.matrica[this.y-1][this.x-1]==0))return;
 		let noviX = -1;
 		let noviY = -1;
 		let noviDiag = [-1,-1];
@@ -346,7 +346,7 @@ class Igrac{
 		if(misere){
 			for(let i =0;i<this.tbl.dimenzija;i++){
 				for(let j =0;j<this.tbl.dimenzija;j++){
-					if((j==0 || i==0) || (j>0 && i>0 && this.tbl.matrica[i-1][j]==0 && this.tbl.matrica[i][j-1]==0 && this.tbl.matrica[i-1][j-1]==0)){
+					if((j==0 && i==0) || (j>0 && i>0 && this.tbl.matrica[i-1][j]==0 && this.tbl.matrica[i][j-1]==0 && this.tbl.matrica[i-1][j-1]==0)){
 						this.grandi[i][j]=1;
 					}
 				}
