@@ -21,14 +21,12 @@
 		<input type="checkbox" name="grandi" id="grandiCheck">
 		<label for="misere" id="labelaMisere">Misère</label>
 		<input type="checkbox" name="misere" id="misereCheck">
-		<div class="d-table-cell tgt">
-			<button onclick="promeniModCrtanja()" id="menjacCrtanja">NACRTAJ</button>
-		</div> 
 	</div>
 	
 	<canvas class="glavno" width="500" height="500" id="platno" ></canvas>
 	<button class="glavno" onclick="podesi()" id="restartDugme">ISPOČETKA</button>
-	<button class="glavno" onclick="promeniMod()" id="menjacModa">Protiv racunara</button>
+	<p class="glavno">Dimenzija: <span id="dimenzijaIspis"></span></p>
+	<input class="glavno" type="range" name="dimenzija" id="sliderDimenzija" min="2" max="20" value="10">
 	<script src="./main.js"></script>
 </body>
 </html>
