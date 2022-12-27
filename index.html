@@ -6,26 +6,28 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./style.css">
 	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-	<title>Maturski</title>
+	<title>Матурски рад</title>
 </head>
 <body onload="podesi()">
 	<div class="glavno d-table">
-		<label for="birac" >Boja:</label>
-		<select name="birac" id="biracBoja" class="d-table-cell">
-			<option value="default">Standardna</option>
-			<option value="priroda">Priroda</option>
-			<option value="roze">Roze</option>
-			<option value="funky">Čudna</option>
+		<label for="birac" class="ne-crtam">Стил:</label>
+		<select name="birac" id="biracBoja" class="d-table-cell ne-crtam">
+			<option value="default">Минималистичан</option>
+			<option value="priroda">Природа</option>
+			<option value="roze">Розе</option>
+			<option value="funky">Шарени</option>
 		</select>
-		<label for="grandi" id="labelaGrandi">Prikaži Grandi</label>
-		<input type="checkbox" name="grandi" id="grandiCheck">
-		<label for="misere" id="labelaMisere">Misère</label>
-		<input type="checkbox" name="misere" id="misereCheck">
+		<label for="grandi" id="labelaGrandi" class="ne-crtam" >Прикажи Гранди</label>
+		<input type="checkbox" name="grandi" id="grandiCheck" class="ne-crtam">
+		<label for="misere" id="labelaMisere" class="ne-crtam">Misère</label>
+		<input type="checkbox" name="misere" id="misereCheck" class="ne-crtam">
+		<button class="ne-crtam" onclick="crtaj()">Цртај</button>
+		<button class="crtam" onclick="neCrtaj()">Готово</button>
 	</div>
 	
-	<canvas class="glavno" width="500" height="500" id="platno" ></canvas>
-	<button class="glavno" onclick="podesi()" id="restartDugme">ISPOČETKA</button>
-	<p class="glavno">Dimenzija: <span id="dimenzijaIspis"></span></p>
+	<canvas class="glavno" width="512" height="512" id="platno" ></canvas>
+	<button class="glavno" onclick="podesi()" id="restartDugme">ИСПОЧЕТКА</button>
+	<p class="glavno">Димензија: <span id="dimenzijaIspis"></span></p>
 	<input class="glavno" type="range" name="dimenzija" id="sliderDimenzija" min="2" max="20" value="10">
 	<script src="./main.js"></script>
 </body>

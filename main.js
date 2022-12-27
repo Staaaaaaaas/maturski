@@ -8,10 +8,20 @@ const birac = document.getElementById("biracBoja");
 const sliderDimenzija = document.getElementById("sliderDimenzija");
 const dimenzijaIspis = document.getElementById("dimenzijaIspis");
 const checkBoxGrandi = document.getElementById("grandiCheck");
+
+
+
+
 dimenzijaIspis.innerHTML = sliderDimenzija.value;
 
 
-const sirina = platno.width;
+let misJeDole = false;
+
+let sirina;
+let visina;
+
+let modCrtanja = false;
+
 let dimenzijaTable = 10;
 
 let tabla;
@@ -19,21 +29,28 @@ let figura;
 let potez;
 
 function podesi(){
+    sirina = platno.width;
+    visina = platno.height;
+
     potez = true;
     kontekst.textAlign = "center";
     tabla = new Tabla(sirina);
     figura = new Figura();
     tabla.podesi();
     if(tabla.grandi[dimenzijaTable-1][dimenzijaTable-1]){
-        potez = false;
+        potez=false;
         figura.pomeriRacunar();
+    }
+    if(modCrtanja){
+        potez=false;
+        tabla.matrica[dimenzijaTable-1][dimenzijaTable-1]=0;
     }
     window.requestAnimationFrame(petlja);
 }
 
 function petlja(){
     kontekst.fillStyle = trenutnaBoja.bojaPozadine;
-    kontekst.fillRect(0,0,500,500);
+    kontekst.fillRect(0,0,sirina,visina);
     tabla.crtaj();
     figura.crtaj();
     tabla.crtajGrandi();
@@ -151,7 +168,7 @@ class Tabla{
         dfs(0,0,[randRange(-100,100), randRange(0.1,2), randRange(1,5), Math.floor(randRange(0,2))]);
     }
     generisiTablu(){
-        let brojPuteva =5//Math.floor(dimenzijaTable * randRange(0.5, 1));
+        let brojPuteva =Math.floor(3*Math.log(dimenzijaTable));
         for(let i=0;i<brojPuteva;i++){
             //this.generisiPutV1();
             this.generisiPutV2();
@@ -182,6 +199,7 @@ class Tabla{
         }
     }
     podesi(){
+        if(modCrtanja)return;
         this.generisiTablu();
         this.izracunajGrandi();
         
@@ -283,6 +301,30 @@ class Figura{
     }
 }
 
+function crtaj(){
+    
+    document.querySelectorAll(".ne-crtam").forEach(elem=>{
+        elem.style.display = "none";
+    });
+    document.querySelector(".crtam").style.display="inline";
+    modCrtanja=true;
+    podesi();
+
+}
+function neCrtaj(){
+    document.querySelector(".crtam").style.display="none";
+    document.querySelectorAll(".ne-crtam").forEach(elem=>{
+        elem.style.display = "inline";
+    }); 
+    modCrtanja=false;
+    tabla.izracunajGrandi();
+    potez=true;
+    if(tabla.grandi[dimenzijaTable-1][dimenzijaTable-1]){
+        potez=false;
+        figura.pomeriRacunar();
+    }
+}
+
 birac.onchange = function(){
     trenutnaBoja = boje[this.value];
     document.body.style.backgroundColor = trenutnaBoja.bojaPozadine;
@@ -307,8 +349,30 @@ function pozicijaMisa(desavanje) {
 }
 
 platno.addEventListener("click", function(event){
+
 	[x, y] = pozicijaMisa(event);
     let i = Math.floor(y/tabla.strana);
     let j = Math.floor(x/tabla.strana);
-	figura.pomeri(i,j);
+	if(!modCrtanja)figura.pomeri(i,j);
+
+    
+});
+
+platno.addEventListener("mousedown", function(event){
+    misJeDole=true;
+});
+
+platno.addEventListener("mouseup", function(event){
+    misJeDole=false;
+});
+
+
+platno.addEventListener("mousemove", function(event){
+    if(!modCrtanja || !misJeDole)return;
+    [x, y] = pozicijaMisa(event);
+    let i = Math.floor(y/tabla.strana);
+    let j = Math.floor(x/tabla.strana);
+    
+    tabla.matrica[i][j]=0;
+    
 });
