@@ -7,7 +7,7 @@ const birac = document.getElementById("biracBoja");
 
 const sliderDimenzija = document.getElementById("sliderDimenzija");
 const dimenzijaIspis = document.getElementById("dimenzijaIspis");
-const checkBoxGrandi = document.getElementById("grandiCheck");
+const checkBoxCheat = document.getElementById("cheatCheck");
 
 
 
@@ -37,7 +37,7 @@ function podesi(){
     tabla = new Tabla(sirina);
     figura = new Figura();
     tabla.podesi();
-    if(tabla.grandi[dimenzijaTable-1][dimenzijaTable-1]){
+    if(tabla.pozicije[dimenzijaTable-1][dimenzijaTable-1]){
         potez=false;
         figura.pomeriRacunar();
     }
@@ -53,20 +53,8 @@ function petlja(){
     kontekst.fillRect(0,0,sirina,visina);
     tabla.crtaj();
     figura.crtaj();
-    tabla.crtajGrandi();
+    tabla.crtajPozicije();
     window.requestAnimationFrame(petlja);
-}
-
-
-function nadjiNajdesnijuNulu(broj){
-	broj = ~broj;
-	let stepen = (broj&~(broj-1));
-	let odgovor = 0;
-	while(stepen!=1){
-		stepen>>=1;
-		odgovor++;
-	}
-	return odgovor;
 }
 
 function randRange(min, max){
@@ -120,15 +108,14 @@ class Tabla{
     constructor(velicinaUPixelima){
         this.velicina = velicinaUPixelima;
         this.strana = this.velicina/dimenzijaTable;
-        this.matrica = [];
-        this.grandi = [];
+        this.matrica = Array(dimenzijaTable);
+        this.pozicije = Array(dimenzijaTable);
+        this.pozicijeVertikalno = Array(dimenzijaTable).fill(1+checkBoxMisere.checked);
+        this.pozicijeHorizontalno = Array(dimenzijaTable).fill(1+checkBoxMisere.checked);
+        this.pozicijeDijagonalno = Array(2*dimenzijaTable).fill(1+checkBoxMisere.checked);
         for(let i = 0; i<dimenzijaTable; i++){
-			let novaDuzina = this.matrica.push([]);
-            this.grandi.push([]);
-			for(let j = 0; j<dimenzijaTable; j++){
-				this.matrica[novaDuzina-1].push(1);	
-                this.grandi[novaDuzina-1].push(0);
-			}
+			this.matrica[i] = Array(dimenzijaTable).fill(1);
+            this.pozicije[i] = Array(dimenzijaTable).fill(1);
 		}
     }
     generisiPutV1(){
@@ -174,34 +161,40 @@ class Tabla{
             this.generisiPutV2();
         }
     }
-    izracunajGrandi(){
-        let kolona = [];
-        let dijag = [];
-        let vrsta = 0;
-        if(checkBoxMisere.checked)this.grandi[0][0]=1;
-        for(let i=0;i<dimenzijaTable;i++){
-            vrsta = 0;
+    izracunajPozicije(){
+        for(let i=0; i<dimenzijaTable;i++){
             for(let j=0;j<dimenzijaTable;j++){
                 if(this.matrica[i][j]==1){
-                    vrsta = 0;
-                    kolona[j]=0;
-                    dijag[i-j+dimenzijaTable]=0;
-                    this.grandi[i][j]=-1;
-                    continue;
+                    this.pozicijeVertikalno[i]=1+checkBoxMisere.checked;
+                    this.pozicijeHorizontalno[j]=1+checkBoxMisere.checked;
+                    this.pozicijeDijagonalno[i-j+dimenzijaTable]=1+checkBoxMisere.checked;
+                    
+                } 
+                else{
+                    this.pozicije[i][j]=1-Math.min(this.pozicijeVertikalno[i],this.pozicijeHorizontalno[j],this.pozicijeDijagonalno[i-j+dimenzijaTable]);
+                    this.pozicijeVertikalno[i]=Math.min(this.pozicijeVertikalno[i],1);
+                    this.pozicijeHorizontalno[j]=Math.min(this.pozicijeHorizontalno[j],1);
+                    this.pozicijeDijagonalno[i-j+dimenzijaTable]=Math.min(this.pozicijeDijagonalno[i-j+dimenzijaTable],1);
+                    if(this.pozicije[i][j]==-1){
+                        this.pozicije[i][j]=1;
+                        this.pozicijeVertikalno[i]=1;
+                        this.pozicijeHorizontalno[j]=1;
+                        this.pozicijeDijagonalno[i-j+dimenzijaTable]=1; 
+                    }
+                    else{
+                        this.pozicijeVertikalno[i]&=this.pozicije[i][j];
+                        this.pozicijeHorizontalno[j]&=this.pozicije[i][j];
+                        this.pozicijeDijagonalno[i-j+dimenzijaTable]&=this.pozicije[i][j];
+
+                    }
                 }
-                let mex = nadjiNajdesnijuNulu(vrsta | kolona[j] | dijag[i-j+dimenzijaTable]);
-                if(this.grandi[i][j]) mex = this.grandi[i][j];
-                vrsta|=(1<<mex);
-				kolona[j]|=(1<<mex);
-				dijag[i-j+dimenzijaTable]|=(1<<mex);
-                this.grandi[i][j]=mex;
             }
         }
     }
     podesi(){
         if(modCrtanja)return;
         this.generisiTablu();
-        this.izracunajGrandi();
+        this.izracunajPozicije();
         
     }
     crtaj(){
@@ -217,12 +210,12 @@ class Tabla{
 			}
 		}
     }
-    crtajGrandi(){
-        if(!checkBoxGrandi.checked)return;
+    crtajPozicije(){
+        if(!checkBoxCheat.checked)return;
         kontekst.translate(this.strana*0.5, this.strana*0.65);
         for(let i = 0; i<dimenzijaTable; i++){
-            for(let j=0; j<dimenzijaTable; j++)if(this.grandi[i][j]>=-1){
-                tekst(this.grandi[i][j],"grey",this.strana*0.5,this.strana*j, this.strana*i);
+            for(let j=0; j<dimenzijaTable; j++)if(this.pozicije[i][j]>=-1){
+                tekst(this.pozicije[i][j],"grey",this.strana*0.5,this.strana*j, this.strana*i);
             }
         }
         kontekst.translate(-this.strana*0.5, -this.strana*0.65);
@@ -251,19 +244,20 @@ class Figura{
         this.pomeriRacunar();
     }
     pomeriRacunar(){
+        if(modCrtanja)return;
         if(this.i==0 && this.j==0)return;
         let moguciPokreti = [];
         for(let i=this.i-1;i>=0;i--){
             if(tabla.matrica[i][this.j]==1)break;
-            if(tabla.grandi[i][this.j]==0)moguciPokreti.push([i,this.j]);
+            if(tabla.pozicije[i][this.j]==0)moguciPokreti.push([i,this.j]);
         }
         for(let j=this.j-1;j>=0;j--){
             if(tabla.matrica[this.i][j]==1)break;
-            if(tabla.grandi[this.i][j]==0)moguciPokreti.push([this.i,j]);
+            if(tabla.pozicije[this.i][j]==0)moguciPokreti.push([this.i,j]);
         }
         for(let i=this.i-1, j=this.j-1;i>=0 && j>=0;i--, j--){
             if(tabla.matrica[i][j]==1)break;
-            if(tabla.grandi[i][j]==0)moguciPokreti.push([i,j]);
+            if(tabla.pozicije[i][j]==0)moguciPokreti.push([i,j]);
         }
         
         setTimeout(()=>{
@@ -280,14 +274,14 @@ class Figura{
             if(tabla.matrica[i][this.j]==1)break;
             this.dozvoljeno[i][this.j]=1;
             let centarY1 = tabla.strana * i + tabla.strana/2;
-            let bojaKruga = (tabla.grandi[i][this.j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
+            let bojaKruga = (tabla.pozicije[i][this.j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
             krug(centarX, centarY1, tabla.strana/2 * 0.5, bojaKruga);
         }
         for(let j=this.j-1;j>=0;j--){
             if(tabla.matrica[this.i][j]==1)break;
             this.dozvoljeno[this.i][j]=1;
             let centarX1 = tabla.strana * j + tabla.strana/2;
-            let bojaKruga = (tabla.grandi[this.i][j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
+            let bojaKruga = (tabla.pozicije[this.i][j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
             krug(centarX1, centarY, tabla.strana/2 * 0.5, bojaKruga);
         }
         for(let i=this.i-1, j=this.j-1;i>=0 && j>=0;i--, j--){
@@ -295,7 +289,7 @@ class Figura{
             this.dozvoljeno[i][j]=1;
             let centarY1 = tabla.strana * i + tabla.strana/2;
             let centarX1 = tabla.strana * j + tabla.strana/2;
-            let bojaKruga = (tabla.grandi[i][j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
+            let bojaKruga = (tabla.pozicije[i][j]==0) ? trenutnaBoja.bojaCilja : trenutnaBoja.bojaPokreta;
             krug(centarX1, centarY1, tabla.strana/2 * 0.5, bojaKruga);
         }
     }
@@ -317,9 +311,9 @@ function neCrtaj(){
         elem.style.display = "inline";
     }); 
     modCrtanja=false;
-    tabla.izracunajGrandi();
+    tabla.izracunajPozicije();
     potez=true;
-    if(tabla.grandi[dimenzijaTable-1][dimenzijaTable-1]){
+    if(tabla.pozicije[dimenzijaTable-1][dimenzijaTable-1]){
         potez=false;
         figura.pomeriRacunar();
     }
@@ -335,7 +329,7 @@ checkBoxMisere.onclick = function(){
 }
 
 sliderDimenzija.oninput = function(){
-    dimenzijaTable = this.value;
+    dimenzijaTable = Number(this.value);
     podesi();
     dimenzijaIspis.innerHTML = this.value;
 }
