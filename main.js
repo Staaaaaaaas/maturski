@@ -168,7 +168,7 @@ class Tabla {
         dfs(0, 0, params);
     }
     generisiTablu() {
-        let brojPuteva = 30;//Math.floor(3 * Math.log(dimenzijaTable));
+        let brojPuteva = Math.floor(randRange (3 * Math.log(dimenzijaTable), dimenzijaTable-1));
         for (let i = 0; i < brojPuteva; i++) {
             //this.generisiPutV1();
             this.generisiPutV2();
