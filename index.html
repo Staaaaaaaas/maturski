@@ -12,18 +12,18 @@
 			<option value="roze">Розе</option>
 			<option value="funky">Шарени</option>
 		</select>
-		<label for="cheat" id="labelaGrandi" class="ne-crtam" >Мод варања</label>
+		<label for="cheat" id="labelaGrandi" class="ne-crtam" >Прикажи позиције</label>
 		<input type="checkbox" name="cheat" id="cheatCheck" class="ne-crtam">
 		<label for="misere" id="labelaMisere" class="ne-crtam">Misère</label>
 		<input type="checkbox" name="misere" id="misereCheck" class="ne-crtam">
 		<button class="ne-crtam" onclick="crtaj()">Цртај</button>
 		<button class="crtam" onclick="neCrtaj()">Готово</button>
+		<button class="crtam" onclick="popuniCelu()">Без препрека</button>
 	</div>
 	
 	<canvas class="glavno" width="512" height="512" id="platno" ></canvas>
 	<button class="glavno" onclick="podesi()" id="restartDugme">ИСПОЧЕТКА</button>
 	<p class="glavno">Димензија: <span id="dimenzijaIspis"></span></p>
-	<input class="glavno" type="range" name="dimenzija" id="sliderDimenzija" min="2" max="20" value="10">
+	<input class="glavno" type="range" name="dimenzija" id="sliderDimenzija" min="2" max="30" value="10">
 	<script src="./main.js"></script>
 </body>
-</html>

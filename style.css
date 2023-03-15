@@ -15,15 +15,6 @@ select, button, label{
     font-family: "Roboto";font-size: large;
     font-weight: bold;
 }
-.d-table{
-    display: table;
-}
-.d-table-cell{
-    display: table-cell;
-}
-.tgt{
-    text-align: right;
-}
 .crtam{
     display: none;
 }
